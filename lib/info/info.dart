@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../login/login.dart';
 import '../info/infoedit.dart';
 import '../order/order.dart';
+import '../main.dart';
 
 class Info extends StatefulWidget {
   const Info({Key? key}) : super(key: key);
@@ -11,15 +12,35 @@ class Info extends StatefulWidget {
 }
 
 class _InfoState extends State<Info> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
 
-  void _navigateToPage(Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+  void _navigateToPage(int index) {
+    if (index != _currentIndex) {
+      setState(() {
+        _currentIndex = index;
+      });
+
+      Widget page;
+
+      switch (index) {
+        case 0:
+          page = const MyHome(); // '스캔'
+          break;
+        case 3:
+          page = const Order(message: "message"); // '메뉴'
+          break;
+        default:
+          return;
+      }
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -31,7 +52,7 @@ class _InfoState extends State<Info> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              _navigateToPage(Login());
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
             },
             child: Text(
               '로그인',
@@ -51,33 +72,13 @@ class _InfoState extends State<Info> {
         ),
         backgroundColor: Color(0xfffae100),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            InkWell(
-              onTap: () {
-                _navigateToPage(Infoedit());
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "내정보 편집",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
-            ),
+            _buildInkWell("내정보 편집", () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Infoedit()));
+            }),
           ],
         ),
       ),
@@ -87,10 +88,31 @@ class _InfoState extends State<Info> {
         backgroundColor: _currentIndex == 2 ? Colors.yellowAccent : Colors.yellow,
         child: Icon(Icons.shopping_bag_outlined, color: Colors.black),
         onPressed: () {
-          setState(() {
-            _currentIndex = 2;
-          });
+          _navigateToPage(2);
         },
+      ),
+    );
+  }
+
+  Widget _buildInkWell(String text, Function() onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 16.0,
+          ),
+        ),
       ),
     );
   }
@@ -113,18 +135,14 @@ class _InfoState extends State<Info> {
         ),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          currentIndex: _currentIndex,
           backgroundColor: Colors.yellow,
           selectedItemColor: Colors.black,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+          currentIndex: _currentIndex,
+          onTap: _navigateToPage,
           items: [
             _buildBottomNavigationBarItem(Icons.qr_code, '스캔'),
             _buildBottomNavigationBarItem(Icons.search, '검색'),
-            _buildBottomNavigationBarItem(Icons.home, '장바구니'),
+            _buildBottomNavigationBarItem(Icons.home, '결제'),
             _buildBottomNavigationBarItem(Icons.event, '메뉴'),
             _buildBottomNavigationBarItem(Icons.person, '정보'),
           ],
@@ -137,14 +155,7 @@ class _InfoState extends State<Info> {
     return BottomNavigationBarItem(
       icon: Container(
         margin: EdgeInsets.symmetric(vertical: 1.0),
-        child: IconButton(
-          onPressed: () {
-            if (_currentIndex != 4) {
-              _navigateToPage(_currentIndex == 3 ? Order(message: "message") : Info());
-            }
-          },
-          icon: Icon(icon),
-        ),
+        child: Icon(icon),
       ),
       label: label,
     );
