@@ -14,16 +14,16 @@ class _OrderState extends State<Order> {
   int _currentIndex = 2;
   var category = ['신메뉴', '추천', '메인', '세트', '주류', '호출'];
   var menu = [
-    '생맥주',
-    '김치찌개',
-    '된장찌개',
-    '순두부찌개',
-    '고추장찌개',
-    '제육볶음',
-    '소불고기',
-    '뚝배기불고기',
-    '공기밥',
-    '소주'
+    {'name': '생맥주주주주주주주주주주주주주주주주', 'price': 5000},
+    {'name': '김치찌개', 'price': 8000},
+    {'name': '된장찌개', 'price': 8000},
+    {'name': '순두부찌개', 'price': 8000},
+    {'name': '고추장찌개', 'price': 8000},
+    {'name': '제육볶음', 'price': 8000},
+    {'name': '소불고기', 'price': 8000},
+    {'name': '공기밥', 'price': 1000},
+    {'name': '소주', 'price': 4000},
+    {'name': '직원호출'},
   ];
   List<int> _quantityList = List.filled(10, 0);
 
@@ -65,197 +65,238 @@ class _OrderState extends State<Order> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal, // 수평 스크롤
-            child: Row(
-              children: [
-                Container(
-                  width:
-                      MediaQuery.of(context).size.width / 1, // 광고 컨테이너의 너비 조정
-                  height: MediaQuery.of(context).size.height / 8,
-                  decoration: BoxDecoration(
-                    color: const Color(0xff7f7f7f),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '광고1',
-                      style: const TextStyle(
-                        fontSize: 40,
+      body: SafeArea(
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal, // 수평 스크롤
+              child: Row(
+                children: [
+                  Container(
+                    width:
+                        MediaQuery.of(context).size.width / 1, // 광고 컨테이너의 너비 조정
+                    height: MediaQuery.of(context).size.height / 8,
+                    decoration: BoxDecoration(
+                      color: const Color(0xff7f7f7f),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '광고1',
+                        style: const TextStyle(
+                          fontSize: 40,
+                        ),
                       ),
                     ),
+                  ),
+                  Container(
+                    width:
+                        MediaQuery.of(context).size.width / 1, // 광고 컨테이너의 너비 조정
+                    height: MediaQuery.of(context).size.height / 8,
+                    decoration: BoxDecoration(
+                      color: const Color(0xff7f7f7f),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '광고2',
+                        style: const TextStyle(
+                          fontSize: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height / 8,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xffFEE500),
+              ),
+              child: Center(
+                child: Text(
+                  "가게",
+                  style: const TextStyle(
+                    fontSize: 40,
                   ),
                 ),
-                Container(
-                  width:
-                      MediaQuery.of(context).size.width / 1, // 광고 컨테이너의 너비 조정
-                  height: MediaQuery.of(context).size.height / 8,
-                  decoration: BoxDecoration(
-                    color: const Color(0xff7f7f7f),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '광고2',
-                      style: const TextStyle(
-                        fontSize: 40,
-                      ),
-                    ),
-                  ),
+              ),
+            ),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyHome()));
+                  },
+                  child: Text("메뉴"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Review()));
+                  },
+                  child: Text("리뷰"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyHome()));
+                  },
+                  child: Text("정보"),
                 ),
               ],
             ),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height / 8,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xffFEE500),
-            ),
-            child: Center(
-              child: Text(
-                "가게",
-                style: const TextStyle(
-                  fontSize: 40,
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const MyHome()));
-                },
-                child: Text("메뉴"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Review()));
-                },
-                child: Text("리뷰"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const MyHome()));
-                },
-                child: Text("정보"),
-              ),
-            ],
-          ),
-          Expanded(
-            // Added Expanded
-            child: ListView(
-              // Use ListView for Scrollable Content
-              scrollDirection: Axis.horizontal, // 가로 스크롤
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width / 6, // 가로 너비 지정
-                  child: ListView.builder(
-                    itemCount: 6,
-                    itemExtent: 50.0, // 각 항목의 높이 설정
-                    padding: EdgeInsets.all(3),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          category[index],
-                          style: TextStyle(fontSize: 13),
-                          textAlign: TextAlign.center,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                              color: Colors.white70, width: 1.0), // 테두리 추가
-                        ),
-                        onTap: () {
-                          // 탭 이벤트 처리
-                        },
-                      );
-                    },
+            Expanded(
+              // Added Expanded
+              child: ListView(
+                // Use ListView for Scrollable Content
+                scrollDirection: Axis.horizontal, // 가로 스크롤
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width / 5, // 가로 너비 지정
+                    child: ListView.builder(
+                      itemCount: category.length,
+                      itemExtent: 50.0, // 각 항목의 높이 설정
+                      padding: EdgeInsets.all(3),
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(
+                            category[index],
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.white70, width: 1.0), // 테두리 추가
+                          ),
+                          onTap: () {
+                            // 탭 이벤트 처리
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 5 / 6, // 가로 너비 지정
-                  child: ListView.builder(
-                    itemCount: 10,
-                    itemExtent: 100.0,
-                    padding: EdgeInsets.all(3),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          menu[index],
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        contentPadding: EdgeInsets.all(3),
-                        // 내용 주위의 패딩
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                              color: Colors.white70, width: 1.0), // 테두리 추가
-                        ),
-                        onTap: () {
-                          // 탭 이벤트 처리
-                        },
-                        leading: Container(
-                          width: MediaQuery.of(context).size.width / 6,
-                          height: MediaQuery.of(context).size.height / 6,
-                          color: Colors.blue,
-                          child: Center(
-                            child: Text('Image'),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 4 / 5, // 가로 너비 지정
+                    child: ListView.builder(
+                      itemCount: menu.length,
+                      itemExtent: 100.0,
+                      padding: EdgeInsets.all(3),
+                      itemBuilder: (context, index) {
+                        final menuItem = menu[index];
+                        final menuName = (menuItem['name'] as String?) ?? '';
+                        final menuPrice = menuItem['price'];
+                        return ListTile(
+                          contentPadding: EdgeInsets.all(3),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Colors.white70,
+                              width: 1.0,
+                            ),
                           ),
-                        ),
-                        // 다른 컨테이너 추가
-                        subtitle: Container(
-                          margin: EdgeInsets.fromLTRB(150, 45, 10, 0),
-                          height: MediaQuery.of(context).size.height / 36,
-                          decoration: BoxDecoration(
-                            color: Color(0xffFEE500),
-                            borderRadius:
-                                BorderRadius.circular(15.0), // 각을 둥글게 하는 부분
+                          leading: Container(
+                            width: MediaQuery.of(context).size.width / 6,
+                            height: MediaQuery.of(context).size.height / 1,
+                            margin: EdgeInsets.zero,
+                            color: Colors.blue,
+                            child: Center(
+                              child: Text('Image'),
+                            ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                          title: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                width: 20,
-                                height: 20,
-                                alignment: Alignment.center,
-                                child: IconButton(
-                                  onPressed: () => _decrementQuantity(index),
-                                  icon: Icon(Icons.remove, size: 15, color: Colors.black),
-                                  padding: EdgeInsets.zero,
-                                ),
+                                child: Text(
+                                menuName ?? '',
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
                               ),
                               Container(
-                                width: 20,
-                                height: 20,
-                                alignment: Alignment.center,
-                                color: Colors.white,
-                                child: Text('${_quantityList[index]}'),
+                                padding: EdgeInsets.fromLTRB(0, 0, 10, 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: MediaQuery.of(context).size.height / 30,
+                                    alignment: Alignment.centerLeft,
+                                    color: Color(0xffFEE500),
+                                    child: Text(
+                                      menuPrice != null ? menuPrice.toString() : '',
+                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: MediaQuery.of(context).size.height / 30,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xffFEE500),
+                                      borderRadius: BorderRadius.circular(15.0),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 30,
+                                          height: 20,
+                                          alignment: Alignment.center,
+                                          child: IconButton(
+                                            onPressed: () => _decrementQuantity(index),
+                                            icon: Icon(Icons.remove, size: 15, color: Colors.black),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 20,
+                                          height: 20,
+                                          alignment: Alignment.center,
+                                          color: Colors.white,
+                                          child: Text(
+                                            '${_quantityList[index]}',
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 30,
+                                          height: 20,
+                                          alignment: Alignment.center,
+                                          child: IconButton(
+                                            onPressed: () => _incrementQuantity(index),
+                                            icon: Icon(
+                                              Icons.add,
+                                              size: 15,
+                                              color: Colors.black,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                width: 20,
-                                height: 20,
-                                alignment: Alignment.center,
-                                child: IconButton(
-                                  onPressed: () => _incrementQuantity(index),
-                                  icon: Icon(Icons.add, size: 15, color: Colors.black,),
-                                  padding: EdgeInsets.zero,
-                                ),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    )
+
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButtonLocation:
