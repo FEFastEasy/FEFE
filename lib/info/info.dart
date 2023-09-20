@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../login/login.dart';
 import '../info/infoedit.dart';
 import '../order/order.dart';
+import '../cart/cart.dart';
 import '../main.dart';
 
 class Info extends StatefulWidget {
@@ -12,28 +13,35 @@ class Info extends StatefulWidget {
 }
 
 class _InfoState extends State<Info> {
-  int _currentIndex = 2;
+  int _currentIndex = 4;
 
   void _navigateToPage(int index) {
+    final Map<String, dynamic> data = {
+    'menuName': '전달할 메뉴 이름',};
+    // 다른 필요한 데이터도 추가 가능
     if (index != _currentIndex) {
       setState(() {
         _currentIndex = index;
       });
 
-      Widget page;
-
       switch (index) {
         case 0:
-          page = const MyHome(); // '스캔'
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const MyHome()));
+          break;
+        case 2:
+          Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Cart(selectedMenus: []),
+            ),
+          );
           break;
         case 3:
-          page = const Order(message: "message"); // '메뉴'
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Order(message: "message"))); // '메뉴'
           break;
         default:
           return;
       }
-
-      Navigator.push(context, MaterialPageRoute(builder: (context) => page));
     }
   }
 
@@ -52,7 +60,7 @@ class _InfoState extends State<Info> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
             },
             child: Text(
               '로그인',
@@ -86,7 +94,7 @@ class _InfoState extends State<Info> {
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
       floatingActionButton: FloatingActionButton(
         backgroundColor: _currentIndex == 2 ? Colors.yellowAccent : Colors.yellow,
-        child: Icon(Icons.shopping_bag_outlined, color: Colors.black),
+        child: Icon(Icons.credit_card, color: Color(0xff746c1b)),
         onPressed: () {
           _navigateToPage(2);
         },
@@ -142,7 +150,7 @@ class _InfoState extends State<Info> {
           items: [
             _buildBottomNavigationBarItem(Icons.qr_code, '스캔'),
             _buildBottomNavigationBarItem(Icons.search, '검색'),
-            _buildBottomNavigationBarItem(Icons.home, '결제'),
+            _buildBottomNavigationBarItem(Icons.credit_card, '결제'),
             _buildBottomNavigationBarItem(Icons.event, '메뉴'),
             _buildBottomNavigationBarItem(Icons.person, '정보'),
           ],
