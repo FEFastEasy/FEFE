@@ -192,7 +192,7 @@ class _CartState extends State<Cart> {
                      onPressed: () {
                        Navigator.push(context, MaterialPageRoute(builder: (context) => Pay()));
                      },
-                     child: Text('결제하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                     child: Text('결제하기', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
                    ),
                  ],
               ),
