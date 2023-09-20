@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../info/info.dart';
+import '../cart/cart.dart';
 import '../main.dart';
 import '../order/review.dart';
 
@@ -11,10 +12,10 @@ class Order extends StatefulWidget {
 }
 
 class _OrderState extends State<Order> {
-  int _currentIndex = 2;
+  int _currentIndex = 3;
   var category = ['신메뉴', '추천', '메인', '세트', '주류', '호출'];
   var menu = [
-    {'name': '생맥주주주주주주주주주주주주주주주주', 'price': 5000},
+    {'name': '생맥주', 'price': 5000},
     {'name': '김치찌개', 'price': 8000},
     {'name': '된장찌개', 'price': 8000},
     {'name': '순두부찌개', 'price': 8000},
@@ -28,6 +29,19 @@ class _OrderState extends State<Order> {
   List<int> _quantityList = List.filled(10, 0);
 
   void _navigateToPage(int index) {
+    // 수량이 0이 아닌 메뉴들의 정보를 담을 리스트
+    List<Map<String, dynamic>> selectedMenus = [];
+    for (int i = 0; i < menu.length; i++) {
+      if (_quantityList[i] > 0) {
+        selectedMenus.add({
+          'menuName': menu[i]['name'],
+          'menuPrice': menu[i]['price'] as int,
+          'quantity': _quantityList[i],
+          // 필요한 다른 메뉴 정보도 추가 가능
+        });
+      }
+    }
+
     if (index != _currentIndex) {
       setState(() {
         _currentIndex = index;
@@ -35,11 +49,19 @@ class _OrderState extends State<Order> {
 
       switch (index) {
         case 0:
-          Navigator.pushReplacement(
+          Navigator.push(
               context, MaterialPageRoute(builder: (context) => const MyHome()));
           break;
+        case 2:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Cart(selectedMenus: selectedMenus),
+            ),
+          );
+          break;
         case 4:
-          Navigator.pushReplacement(
+          Navigator.push(
               context, MaterialPageRoute(builder: (context) => const Info()));
           break;
         default:
@@ -184,114 +206,134 @@ class _OrderState extends State<Order> {
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 4 / 5, // 가로 너비 지정
-                    child: ListView.builder(
-                      itemCount: menu.length,
-                      itemExtent: 100.0,
-                      padding: EdgeInsets.all(3),
-                      itemBuilder: (context, index) {
-                        final menuItem = menu[index];
-                        final menuName = (menuItem['name'] as String?) ?? '';
-                        final menuPrice = menuItem['price'];
-                        return ListTile(
-                          contentPadding: EdgeInsets.all(3),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Colors.white70,
-                              width: 1.0,
-                            ),
-                          ),
-                          leading: Container(
-                            width: MediaQuery.of(context).size.width / 6,
-                            height: MediaQuery.of(context).size.height / 1,
-                            margin: EdgeInsets.zero,
-                            color: Colors.blue,
-                            child: Center(
-                              child: Text('Image'),
-                            ),
-                          ),
-                          title: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text(
-                                menuName ?? '',
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      width:
+                          MediaQuery.of(context).size.width * 4 / 5, // 가로 너비 지정
+                      child: ListView.builder(
+                        itemCount: menu.length,
+                        itemExtent: 100.0,
+                        padding: EdgeInsets.all(3),
+                        itemBuilder: (context, index) {
+                          final menuItem = menu[index];
+                          final menuName = (menuItem['name'] as String?) ?? '';
+                          final menuPrice = menuItem['price'];
+                          return ListTile(
+                            contentPadding: EdgeInsets.all(3),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: Colors.white70,
+                                width: 1.0,
                               ),
+                            ),
+                            leading: Container(
+                              width: MediaQuery.of(context).size.width / 6,
+                              height: MediaQuery.of(context).size.height / 1,
+                              margin: EdgeInsets.zero,
+                              color: Colors.blue,
+                              child: Center(
+                                child: Text('Image'),
                               ),
-                              Container(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 5),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    width: 80,
-                                    height: MediaQuery.of(context).size.height / 30,
-                                    alignment: Alignment.centerLeft,
-                                    color: Color(0xffFEE500),
-                                    child: Text(
-                                      menuPrice != null ? menuPrice.toString() : '',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                    ),
+                            ),
+                            title: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Text(
+                                    menuName ?? '',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                  Container(
-                                    height: MediaQuery.of(context).size.height / 30,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xffFEE500),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: 30,
-                                          height: 20,
-                                          alignment: Alignment.center,
-                                          child: IconButton(
-                                            onPressed: () => _decrementQuantity(index),
-                                            icon: Icon(Icons.remove, size: 15, color: Colors.black),
-                                            padding: EdgeInsets.zero,
-                                          ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 10, 5),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 80,
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                30,
+                                        alignment: Alignment.centerLeft,
+                                        color: Color(0xffFEE500),
+                                        child: Text(
+                                          menuPrice != null
+                                              ? menuPrice.toString()
+                                              : '',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
                                         ),
-                                        Container(
-                                          width: 20,
-                                          height: 20,
-                                          alignment: Alignment.center,
-                                          color: Colors.white,
-                                          child: Text(
-                                            '${_quantityList[index]}',
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                          ),
+                                      ),
+                                      Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                30,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xffFEE500),
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
                                         ),
-                                        Container(
-                                          width: 30,
-                                          height: 20,
-                                          alignment: Alignment.center,
-                                          child: IconButton(
-                                            onPressed: () => _incrementQuantity(index),
-                                            icon: Icon(
-                                              Icons.add,
-                                              size: 15,
-                                              color: Colors.black,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 30,
+                                              height: 20,
+                                              alignment: Alignment.center,
+                                              child: IconButton(
+                                                onPressed: () =>
+                                                    _decrementQuantity(index),
+                                                icon: Icon(Icons.remove,
+                                                    size: 15,
+                                                    color: Colors.black),
+                                                padding: EdgeInsets.zero,
+                                              ),
                                             ),
-                                            padding: EdgeInsets.zero,
-                                          ),
+                                            Container(
+                                              width: 20,
+                                              height: 20,
+                                              alignment: Alignment.center,
+                                              color: Colors.white,
+                                              child: Text(
+                                                '${_quantityList[index]}',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 30,
+                                              height: 20,
+                                              alignment: Alignment.center,
+                                              child: IconButton(
+                                                onPressed: () =>
+                                                    _incrementQuantity(index),
+                                                icon: Icon(
+                                                  Icons.add,
+                                                  size: 15,
+                                                  color: Colors.black,
+                                                ),
+                                                padding: EdgeInsets.zero,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    )
-
-                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      )),
                 ],
               ),
             ),
@@ -304,7 +346,7 @@ class _OrderState extends State<Order> {
       floatingActionButton: FloatingActionButton(
         backgroundColor:
             _currentIndex == 2 ? Colors.yellowAccent : Colors.yellow,
-        child: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
+        child: const Icon(Icons.credit_card, color: Color(0xff746c1b)),
         onPressed: () {
           _navigateToPage(2);
         },
@@ -337,7 +379,7 @@ class _OrderState extends State<Order> {
           items: [
             _buildBottomNavigationBarItem(Icons.qr_code, '스캔'),
             _buildBottomNavigationBarItem(Icons.search, '검색'),
-            _buildBottomNavigationBarItem(Icons.home, '결제'),
+            _buildBottomNavigationBarItem(Icons.credit_card, '결제'),
             _buildBottomNavigationBarItem(Icons.event, '메뉴'),
             _buildBottomNavigationBarItem(Icons.person, '정보'),
           ],
