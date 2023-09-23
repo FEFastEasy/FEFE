@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fefe/order/order.dart';
+import 'package:fefe/login/signup.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -85,7 +86,7 @@ class _LoginState extends State<Login> {
               children: [
                 TextButton(
                   onPressed: () {
-                    // 회원가입 버튼 동작
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Signup()));
                   },
                   style: TextButton.styleFrom(
                     primary: Colors.black,
@@ -173,7 +174,7 @@ class _LoginState extends State<Login> {
       ),
       child: Center(
         child: Text(
-          "페이페이(FEpay)",
+          "페페(FEFE)",
           style: TextStyle(
             fontSize: 40,
           ),
