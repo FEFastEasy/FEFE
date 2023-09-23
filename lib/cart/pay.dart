@@ -48,45 +48,58 @@ class _PayState extends State<Pay> {
         ),
         SizedBox(height: 10.0),
         Expanded(
-          // Added Expanded
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 그리드의 열 수 (2열)
+          child: Row(children: [
+            Container(
+              width: MediaQuery.of(context).size.width / 16,
             ),
-            itemCount: paymentMethods.length, // 결제수단의 개수에 따라 조정
-            itemBuilder: (context, index) {
-              final paymentMethod = paymentMethods[index];
-              return GestureDetector(
-                onTap: () {
-                  // 선택한 결제수단 처리 로직 추가
-                },
-                child: Container(
-                  height: 20,
-                  margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  decoration: BoxDecoration(
-                    color: paymentMethod['color'],
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 결제수단 아이콘
-                      Icon(paymentMethod['iconData'], size: 36.0),
-                      // 'iconData'를 키로 사용
-                      SizedBox(width: 5.0),
-                      // 결제수단 레이블
-                      Text(paymentMethod['label'], style: TextStyle(fontSize: 20)),
-                      // 'label'을 키로 사용
-                    ],
-                  ),
+            Expanded(
+              // Added Expanded
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 그리드의 열 수 (2열)
+                  mainAxisSpacing: 20.0, // 주 축(main axis) 간격
+                  crossAxisSpacing: 15.0, // 교차 축(cross axis) 간격
+                  childAspectRatio: 3.0, // item의 가로 세로 비율
                 ),
-              );
-            },
-          ),
+                itemCount: paymentMethods.length, // 결제수단의 개수에 따라 조정
+                itemBuilder: (context, index) {
+                  final paymentMethod = paymentMethods[index];
+                  return GestureDetector(
+                    onTap: () {
+                      // 선택한 결제수단 처리 로직 추가
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: paymentMethod['color'],
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // 결제수단 아이콘
+                          Icon(paymentMethod['iconData'], size: 30.0),
+                          // 'iconData'를 키로 사용
+                          SizedBox(width: 5.0),
+                          // 결제수단 레이블
+                          Text(paymentMethod['label'],
+                              style: TextStyle(fontSize: 20)),
+                          // 'label'을 키로 사용
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width / 16,
+            ),
+          ]),
         ),
         Padding(
           padding: const EdgeInsets.all(1.0),
