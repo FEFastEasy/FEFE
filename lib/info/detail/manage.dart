@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../infodetail/manage/analysis.dart';
-import '../infodetail/manage/employee.dart';
-import '../infodetail/manage/sales.dart';
-import '../infodetail/manage/store.dart';
+import '../manage/analysis.dart';
+import '../manage/employee.dart';
+import '../manage/sales.dart';
+import '../manage/store.dart';
 
 class Manage extends StatelessWidget {
   const Manage({Key? key}) : super(key: key);
@@ -59,6 +59,8 @@ class Manage extends StatelessWidget {
             children: [
               SizedBox(height: 40),
               _buildItem(context, '직원현황', Employee()),
+              SizedBox(height: 20),
+              _buildItem(context, '출퇴근 등록', Store()),
               SizedBox(height: 20),
               _buildItem(context, '매장현황', Store()),
               SizedBox(height: 20),
