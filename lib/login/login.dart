@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fefe/order/order.dart';
 import 'package:fefe/login/signup.dart';
 
@@ -8,6 +9,31 @@ class Login extends StatefulWidget {
   @override
   State<Login> createState() => _LoginState();
 }
+
+final TextEditingController _mobileController = TextEditingController();
+
+final List<Map<String, String>> countries = [
+  {'code': '+1', 'flag': '🇺🇸'},
+  {'code': '+44', 'flag': '🇬🇧'},
+  {'code': '+81', 'flag': '🇯🇵'},
+  {'code': '+82', 'flag': '🇰🇷'},
+  {'code': '+86', 'flag': '🇨🇳'},
+  {'code': '+91', 'flag': '🇮🇳'},
+  {'code': '+92', 'flag': '🇵🇰'},
+  {'code': '+93', 'flag': '🇦🇫'},
+  {'code': '+94', 'flag': '🇱🇰'},
+  {'code': '+95', 'flag': '🇲🇲'},
+  {'code': '+98', 'flag': '🇮🇷'},
+  {'code': '+99', 'flag': '🌐'},
+];
+
+Map<String, String>? _selectedCountry;
+
+final TextStyle labelTextStyle = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+  color: Colors.black,
+);
 
 class _LoginState extends State<Login> {
   TextEditingController _usernameController = TextEditingController();
@@ -64,16 +90,9 @@ class _LoginState extends State<Login> {
           children: [
             _buildLogo(),
             SizedBox(height: 16.0),
-            _buildTextField(
-              controller: _usernameController,
-              labelText: '이메일',
-            ),
+            _buildMobile('휴대폰번호', '휴대폰번호를 입력하세요.'),
             SizedBox(height: 16.0),
-            _buildTextField(
-              controller: _passwordController,
-              labelText: '패스워드',
-              obscureText: true,
-            ),
+            _buildPasswordField('비밀번호', '비밀번호를 입력하세요.'),
             SizedBox(height: 25.0),
             // 로그인 버튼
             _buildElevatedButton(
@@ -183,16 +202,99 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String labelText,
-    bool obscureText = false,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: labelText,
+  Widget _buildMobile(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: DropdownButton<Map<String, String>>(
+              value: _selectedCountry,
+              onChanged: (value) {
+                setState(() {
+                  _selectedCountry = value;
+                });
+              },
+              items: countries.map<DropdownMenuItem<Map<String, String>>>(
+                      (Map<String, String> country) {
+                    return DropdownMenuItem<Map<String, String>>(
+                      value: country,
+                      child: Row(
+                        children: [
+                          Text(country['flag'] ?? ''),
+                          SizedBox(width: 6),
+                          Text(country['code'] ?? ''),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+              hint: Text('국가번호'),
+            ),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 4 / 10,
+            child: TextField(
+              controller: _mobileController,
+              decoration: InputDecoration(
+                labelText: _mobileController.text.isEmpty ? hintText : null,
+              ),
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width * 6 / 10,
+            child: TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(
+                labelText: _passwordController.text.isEmpty ? hintText : null,
+              ),
+              obscureText: true, // 이 부분을 추가하여 비밀번호가 * 모양으로 표시됩니다.
+            ),
+          ),
+        ],
       ),
     );
   }
