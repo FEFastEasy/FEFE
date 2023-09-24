@@ -36,11 +36,22 @@ class _SignupState extends State<Signup> {
   final TextEditingController _mobileAuthController = TextEditingController();
 
   String? _selectedGender;
+  bool _isAgeChecked = false;
   bool _isTermsChecked = false;
   bool _isAllTermsChecked = false;
   bool _isPrivacyChecked = false; // 개인정보 수집/이용 동의 체크박스 상태
   bool _isLocationChecked = false; // 위치기반 서비스 이용 동의 체크박스 상태
   bool _isPromotionChecked = false; // 홍보성 정보 수신에 동의 체크박스 상태
+
+  void _updateAllTermsChecked() {
+    setState(() {
+      _isAllTermsChecked = _isAgeChecked &&
+          _isTermsChecked &&
+          _isPrivacyChecked &&
+          _isLocationChecked &&
+          _isPromotionChecked;
+    });
+  }
 
   final TextStyle labelTextStyle = TextStyle(
     fontSize: 20,
@@ -106,10 +117,7 @@ class _SignupState extends State<Signup> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 40),
-              Text(
-                '페페(FEFE) 가입을 환영합니다.',
-                style: labelTextStyle.copyWith(fontSize: 30),
-              ),
+              _buildTitle('페페(FEFE) 가입을 환영합니다.', fontSize: 30),
               SizedBox(height: 30),
               _buildFormField('이름', '이름을 입력하세요.'),
               SizedBox(height: 20),
@@ -133,6 +141,7 @@ class _SignupState extends State<Signup> {
 
                           // 모든 체크박스에 전체 동의 상태를 적용
                           _isTermsChecked = _isAllTermsChecked;
+                          _isAgeChecked = _isAllTermsChecked;
                           _isPrivacyChecked = _isAllTermsChecked;
                           _isLocationChecked = _isAllTermsChecked;
                           _isPromotionChecked = _isAllTermsChecked;
@@ -143,24 +152,34 @@ class _SignupState extends State<Signup> {
                   ],
                 ),
               ),
-              _buildCheckBox(context, '이용약관 동의', _isTermsChecked, (value) {
+              _buildCheckBox02(context, '만 14세 이상입니다. (필수)', _isAgeChecked, (value) {
+                setState(() {
+                  _isAgeChecked = value ?? false;
+                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
+                });
+              }, ),
+              _buildCheckBox(context, '이용약관 동의 (필수)', _isTermsChecked, (value) {
                 setState(() {
                   _isTermsChecked = value ?? false;
+                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '이용약관'),
-              _buildCheckBox(context, '개인정보 수집/이용 동의', _isPrivacyChecked, (value) {
+              _buildCheckBox(context, '개인정보 수집/이용 동의 (필수)', _isPrivacyChecked, (value) {
                 setState(() {
                   _isPrivacyChecked = value ?? false;
+                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '개인정보'),
-              _buildCheckBox(context, '위치기반 서비스 이용 동의', _isLocationChecked, (value) {
+              _buildCheckBox(context, '위치기반 서비스 이용 동의 (필수)', _isLocationChecked, (value) {
                 setState(() {
                   _isLocationChecked = value ?? false;
+                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '위치기반'),
-              _buildCheckBox(context, '홍보성 정보 수신에 동의(선택)', _isPromotionChecked, (value) {
+              _buildCheckBox(context, '홍보성 정보 수신에 동의 (선택)', _isPromotionChecked, (value) {
                 setState(() {
                   _isPromotionChecked = value ?? false;
+                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '홍보'),
               Padding(
@@ -177,15 +196,17 @@ class _SignupState extends State<Signup> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      if (_isTermsChecked) {
-                        // 이용약관에 동의한 경우 회원가입 처리 로직을 실행하세요.
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+                      if (_isAgeChecked && _isTermsChecked && _isPrivacyChecked && _isLocationChecked) {
+                        // Check if all terms except '홍보성 정보 수신에 동의' are agreed upon
+                          // Perform the signup logic here
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
                       } else {
+                        // Show an alert that all terms must be agreed upon
                         showDialog(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              content: Text('이용약관에 동의해야 회원가입이 가능합니다.'),
+                              content: Text('필수 약관에 동의해야 회원가입이 가능합니다.'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -199,6 +220,7 @@ class _SignupState extends State<Signup> {
                         );
                       }
                     },
+
                     child: Text(
                         '회원가입',
                         style: TextStyle(
@@ -211,6 +233,23 @@ class _SignupState extends State<Signup> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(String title, {double fontSize = 20}) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 8 / 10,
+      height: 80,
+      decoration: BoxDecoration(
+        color: Color(0xfffae100),
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Center(
+        child: Text(
+          title,
+          style: labelTextStyle.copyWith(fontSize: fontSize),
         ),
       ),
     );
@@ -502,8 +541,29 @@ class _SignupState extends State<Signup> {
   }
 }
 
+Widget _buildCheckBox02(
+    BuildContext context,
+    String label,
+    bool value,
+    ValueChanged<bool?> onChanged,
+    ) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 30),
+    child: Row(
+      children: [
+        Checkbox(
+          value: value,
+          onChanged: onChanged,
+        ),
+        Text(label),
+      ],
+    ),
+  );
+}
+
+
 Widget _buildCheckBox(
-    BuildContext context, // 함수에 BuildContext 추가
+    BuildContext context,
     String label,
     bool value,
     ValueChanged<bool?> onChanged,
@@ -514,19 +574,18 @@ Widget _buildCheckBox(
     child: Row(
       children: [
         Checkbox(
-          value: value, // 기본값을 false로 설정
+          value: value,
           onChanged: onChanged,
         ),
         Text(label),
-        if (TermsContent
-            .getTermsContent(term)
-            .isNotEmpty) // 약관 내용이 있는 경우에만 보기 버튼 추가
+        if (TermsContent.getTermsContent(term).isNotEmpty)
           TextButton(
             onPressed: () {
-              // 해당 약관의 상세 내용 페이지로 이동
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => TermsDetailPage(term: term),
-              ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TermsDetailPage(term: term),
+                ),
               );
             },
             child: Text(
