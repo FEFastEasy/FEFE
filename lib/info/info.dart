@@ -3,6 +3,18 @@ import '../login/login.dart';
 import '../info/infoedit.dart';
 import '../order/order.dart';
 import '../cart/cart.dart';
+import '../info/detail/orderlist.dart';
+import '../info/detail/reviewlist.dart';
+import '../info/detail/like.dart';
+import '../info/detail/coupon.dart';
+import '../info/detail/point.dart';
+import '../info/detail/event.dart';
+import '../info/detail/register.dart';
+import '../info/detail/manage.dart';
+import 'detail/announcement.dart';
+import '../info/detail/cs.dart';
+import '../info/detail/version.dart';
+import '../info/detail/termslist.dart';
 import '../main.dart';
 
 class Info extends StatefulWidget {
@@ -16,9 +28,6 @@ class _InfoState extends State<Info> {
   int _currentIndex = 4;
 
   void _navigateToPage(int index) {
-    final Map<String, dynamic> data = {
-    'menuName': '전달할 메뉴 이름',};
-    // 다른 필요한 데이터도 추가 가능
     if (index != _currentIndex) {
       setState(() {
         _currentIndex = index;
@@ -31,18 +40,26 @@ class _InfoState extends State<Info> {
           break;
         case 2:
           Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Cart(selectedMenus: []),
+            context,
+            MaterialPageRoute(
+              builder: (context) => Cart(selectedMenus: []),
             ),
           );
           break;
         case 3:
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Order(message: "message"))); // '메뉴'
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Order(message: "message"))); // '메뉴'
           break;
         default:
           return;
       }
     }
+  }
+
+  void _navigateToReplacement(Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
   }
 
   @override
@@ -60,7 +77,8 @@ class _InfoState extends State<Info> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Login()));
             },
             child: Text(
               '로그인',
@@ -81,19 +99,67 @@ class _InfoState extends State<Info> {
         backgroundColor: Color(0xfffae100),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildInkWell("내정보 편집", () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Infoedit()));
-            }),
-          ],
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 30),
+          width: MediaQuery.of(context).size.width,
+          alignment: Alignment.topCenter,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 40),
+              _buildProfileButton(),
+              SizedBox(height: 20),
+              _buildButtonRow(
+                buttons: [
+                  _buildNavigationButton("주문내역", () => _navigateToReplacement(Orderlist())),
+                  _buildNavigationButton("리뷰내역", () => _navigateToReplacement(Reviewlist())),
+                ],
+              ),
+              _buildButtonRow(
+                buttons: [
+                  _buildNavigationButton("찜한가게", () => _navigateToReplacement(Like())),
+                  _buildNavigationButton("쿠폰함", () => _navigateToReplacement(Coupon())),
+                ],
+              ),
+              _buildButtonRow(
+                buttons: [
+                  _buildNavigationButton("포인트", () => _navigateToReplacement(Point())),
+                  _buildNavigationButton("이벤트", () => _navigateToReplacement(Event())),
+                ],
+              ),
+              SizedBox(height: 20),
+              _buildStoreButton("매장등록", () => _navigateToReplacement(Register())),
+              SizedBox(height: 20),
+              _buildStoreButton("매장관리", () => _navigateToReplacement(Manage())),
+              SizedBox(height: 20),
+              _buildButtonRow(
+                buttons: [
+                  _buildNavigationButton("공지사항", () => _navigateToReplacement(Announcement())),
+                  _buildNavigationButton("고객센터", () => _navigateToReplacement(Cs())),
+                ],
+              ),
+              _buildButtonRow(
+                buttons: [
+                  _buildNavigationButton("현재버전", () => _navigateToReplacement(Version())),
+                  _buildNavigationButton("약관 및 정책", () => _navigateToReplacement(Termslist())),
+                ],
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: Text(
+                  'Copyright FEFE in Korea, All Rights Reserved.'
+                ),
+              )
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
+      floatingActionButtonLocation:
+      FloatingActionButtonLocation.miniCenterDocked,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: _currentIndex == 2 ? Colors.yellowAccent : Colors.yellow,
+        backgroundColor:
+        _currentIndex == 2 ? Colors.yellowAccent : Colors.yellow,
         child: Icon(Icons.credit_card, color: Color(0xff746c1b)),
         onPressed: () {
           _navigateToPage(2);
@@ -102,24 +168,75 @@ class _InfoState extends State<Info> {
     );
   }
 
-  Widget _buildInkWell(String text, Function() onTap) {
+  Widget _buildProfileButton() {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        _navigateToReplacement(Infoedit());
+      },
       child: Container(
+        padding: EdgeInsets.only(left: 20),
+        height: 80,
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey,
-            width: 1.0,
-          ),
-          borderRadius: BorderRadius.circular(5.0),
+          color: Color(0xfffae100),
+          borderRadius: BorderRadius.circular(15),
         ),
-        padding: EdgeInsets.all(8.0),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16.0,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+            ),
+            SizedBox(width: 10,),
+            Expanded(
+              child: Text('닉네임', style: TextStyle(fontSize: 20)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButtonRow({required List<Widget> buttons}) {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: buttons,
+      ),
+    );
+  }
+
+  Widget _buildNavigationButton(String label, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        height: 60,
+        width: MediaQuery.of(context).size.width * 4 / 10,
+        decoration: BoxDecoration(
+            border: Border.all(width: 1, color: Colors.grey)),
+        child: Center(
+          child: Text(label, style: TextStyle(fontSize: 20)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoreButton(String label, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        height: 60,
+        width: MediaQuery.of(context).size.width * 8 / 10,
+        decoration: BoxDecoration(
+            border: Border.all(width: 1, color: Colors.grey),
+        borderRadius: BorderRadius.circular(15)),
+        child: Center(
+          child: Text(label, style: TextStyle(fontSize: 20)),
         ),
       ),
     );
@@ -159,7 +276,8 @@ class _InfoState extends State<Info> {
     );
   }
 
-  BottomNavigationBarItem _buildBottomNavigationBarItem(IconData icon, String label) {
+  BottomNavigationBarItem _buildBottomNavigationBarItem(
+      IconData icon, String label) {
     return BottomNavigationBarItem(
       icon: Container(
         margin: EdgeInsets.symmetric(vertical: 1.0),
