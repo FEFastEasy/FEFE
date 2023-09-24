@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Infoedit extends StatefulWidget {
@@ -9,10 +10,19 @@ class Infoedit extends StatefulWidget {
   State<Infoedit> createState() => _InfoeditState();
 }
 
+class UserProfile {
+  final String nickname;
+  final String profileImage;
+
+  UserProfile(this.nickname, this.profileImage);
+}
+
+
 class _InfoeditState extends State<Infoedit> {
-  TextEditingController _nameController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _nicknameController = TextEditingController();
-  TextEditingController _birthdateController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _mobileAuthController = TextEditingController();
   XFile? _image; // 선택된 이미지 파일을 저장할 변수
 
   // 이미지를 갤러리에서 선택하는 함수
@@ -26,6 +36,29 @@ class _InfoeditState extends State<Infoedit> {
       });
     }
   }
+
+  final TextStyle labelTextStyle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
+  final List<Map<String, String>> countries = [
+    {'code': '+1', 'flag': '🇺🇸'},
+    {'code': '+44', 'flag': '🇬🇧'},
+    {'code': '+81', 'flag': '🇯🇵'},
+    {'code': '+82', 'flag': '🇰🇷'},
+    {'code': '+86', 'flag': '🇨🇳'},
+    {'code': '+91', 'flag': '🇮🇳'},
+    {'code': '+92', 'flag': '🇵🇰'},
+    {'code': '+93', 'flag': '🇦🇫'},
+    {'code': '+94', 'flag': '🇱🇰'},
+    {'code': '+95', 'flag': '🇲🇲'},
+    {'code': '+98', 'flag': '🇮🇷'},
+    {'code': '+99', 'flag': '🌐'},
+  ];
+
+  Map<String, String>? _selectedCountry;
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +109,16 @@ class _InfoeditState extends State<Infoedit> {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
-            _buildTextField(_nameController, '이름'),
-            SizedBox(height: 16.0),
-            _buildTextField(_nicknameController, '닉네임'),
-            SizedBox(height: 16.0),
-            _buildTextField(_birthdateController, '생년월일'),
+            SizedBox(height: 20.0),
+            _buildNicknameField('닉네임', '닉네임을 입력하세요.'),
+            SizedBox(height: 20.0),
+            _buildFormField('이름', '이름을 입력하세요.'),
+            SizedBox(height: 20.0),
+            _buildFormField('생년월일', '생년월일을 입력하세요.'),
+            SizedBox(height: 20),
+            _buildMobile('휴대폰번호', '휴대폰번호를 입력하세요.'),
+            SizedBox(height: 20),
+            _buildMobileAuth('휴대폰인증', '인증코드를 입력하세요.'),
           ],
         ),
       ),
@@ -89,21 +126,185 @@ class _InfoeditState extends State<Infoedit> {
   }
 
   // TextField를 생성하는 함수
-  Widget _buildTextField(TextEditingController controller, String labelText) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
+  Widget _buildNicknameField(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 6 / 10,
+            child: TextField(
+              controller: _nicknameController,
+              decoration: InputDecoration(
+                labelText: _usernameController.text.isEmpty ? hintText : null,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    // 페이지가 파기될 때 컨트롤러들을 정리합니다.
-    _nameController.dispose();
-    _nicknameController.dispose();
-    _birthdateController.dispose();
-    super.dispose();
+  // TextField를 생성하는 함수
+  Widget _buildFormField(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 6 / 10,
+            child: TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: _usernameController.text.isEmpty ? hintText : null,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobile(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: DropdownButton<Map<String, String>>(
+              value: _selectedCountry,
+              onChanged: (value) {
+                setState(() {
+                  _selectedCountry = value;
+                });
+              },
+              items: countries.map<DropdownMenuItem<Map<String, String>>>(
+                      (Map<String, String> country) {
+                    return DropdownMenuItem<Map<String, String>>(
+                      value: country,
+                      child: Row(
+                        children: [
+                          Text(country['flag'] ?? ''),
+                          SizedBox(width: 6),
+                          Text(country['code'] ?? ''),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+              hint: Text('국가번호'),
+            ),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 4 / 10,
+            child: TextField(
+              controller: _mobileController,
+              decoration: InputDecoration(
+                labelText: _mobileController.text.isEmpty ? hintText : null,
+              ),
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileAuth(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 4 / 10,
+            child: TextField(
+              controller: _mobileAuthController,
+              decoration: InputDecoration(
+                labelText: _mobileAuthController.text.isEmpty ? hintText : null,
+              ),
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+          ),
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 2 / 10,
+            child: ElevatedButton(
+              onPressed: () {
+                // 인증 코드 전송 동작을 여기에 구현하세요.
+              },
+              child: Text('코드전송'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
