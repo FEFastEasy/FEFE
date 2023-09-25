@@ -100,7 +100,7 @@ class _InfoState extends State<Info> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 10),
           width: MediaQuery.of(context).size.width,
           alignment: Alignment.topCenter,
           child: Column(
