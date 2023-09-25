@@ -96,7 +96,7 @@ class _OrderState extends State<Order> {
                 children: [
                   Container(
                     width:
-                        MediaQuery.of(context).size.width / 1, // 광고 컨테이너의 너비 조정
+                        MediaQuery.of(context).size.width, // 광고 컨테이너의 너비 조정
                     height: MediaQuery.of(context).size.height / 8,
                     decoration: BoxDecoration(
                       color: const Color(0xff7f7f7f),
