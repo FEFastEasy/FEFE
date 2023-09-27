@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:fefe/order/order.dart';
 import 'package:fefe/info/info.dart';
@@ -46,17 +47,47 @@ class _MyHomeState extends State<MyHome> {
       appBar: AppBar(
         title: const Text('QR 스캔'),
         centerTitle: true,
-        titleTextStyle: const TextStyle(color: Color(0xff000000), fontSize: 20,  fontWeight: FontWeight.bold,),
+        titleTextStyle: const TextStyle(
+          color: Color(0xff000000),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
         backgroundColor: const Color(0xfffae100),
         automaticallyImplyLeading: false,
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(flex: 4, child: _buildQrView(context)),
-        ],
+      body: WillPopScope(
+        onWillPop: _onWillPop, // 뒤로가기 버튼을 누를 때 호출할 메서드를 지정합니다.
+        child: Column(
+          children: <Widget>[
+            Expanded(flex: 4, child: _buildQrView(context)),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomAppBar(context),
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('앱 종료'),
+        content: Text('앱을 종료하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('아니요'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              SystemNavigator.pop(); // 앱 종료
+            },
+            child: Text('예'),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   Widget _buildBottomAppBar(BuildContext context) {
@@ -88,12 +119,12 @@ class _MyHomeState extends State<MyHome> {
   }
 
   void _navigateToInfoPage(BuildContext context) {
-    // info 페이지로 이동하는 코드를 작성
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => Info(), // Info는 이동할 페이지의 위젯입니다.
-      ),
-    );
+      // info 페이지로 이동하는 코드를 작성
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => Info(), // Info는 이동할 페이지의 위젯입니다.
+        ),
+      );
   }
 
   Widget _buildQrView(BuildContext context) {
@@ -138,6 +169,10 @@ class _MyHomeState extends State<MyHome> {
 
   void _navigateToOrderPage(BuildContext context) {
     if (result != null) {
+      // 카메라 작동 멈추기
+      controller?.dispose();
+
+      // 화면 전환
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
