@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../info/info.dart';
 import '../cart/cart.dart';
 import '../main.dart';
@@ -87,7 +88,9 @@ class _OrderState extends State<Order> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      body: WillPopScope(
+        onWillPop: _onWillPop, // 뒤로가기 버튼을 누를 때 호출할 메서드를 지정합니다.
+        child: SafeArea(
         child: Column(
           children: [
             SingleChildScrollView(
@@ -340,6 +343,7 @@ class _OrderState extends State<Order> {
           ],
         ),
       ),
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
@@ -398,4 +402,28 @@ class _OrderState extends State<Order> {
       label: label,
     );
   }
+
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('앱 종료'),
+        content: Text('앱을 종료하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('아니요'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              SystemNavigator.pop(); // 앱 종료
+            },
+            child: Text('예'),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
 }

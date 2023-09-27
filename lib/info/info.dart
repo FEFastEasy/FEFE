@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../login/login.dart';
 import '../info/infoedit.dart';
 import '../order/order.dart';
@@ -67,13 +68,7 @@ class _InfoState extends State<Info> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.keyboard_backspace),
-          color: Colors.black,
-        ),
+        automaticallyImplyLeading: false, // 뒤로가기 버튼 숨기기
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -98,7 +93,9 @@ class _InfoState extends State<Info> {
         ),
         backgroundColor: Color(0xfffae100),
       ),
-      body: SingleChildScrollView(
+      body: WillPopScope(
+        onWillPop: _onWillPop, // 뒤로가기 버튼을 누를 때 호출할 메서드를 지정합니다.
+        child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 10),
           width: MediaQuery.of(context).size.width,
@@ -153,6 +150,7 @@ class _InfoState extends State<Info> {
             ],
           ),
         ),
+      ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButtonLocation:
@@ -286,4 +284,28 @@ class _InfoState extends State<Info> {
       label: label,
     );
   }
+
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('앱 종료'),
+        content: Text('앱을 종료하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('아니요'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              SystemNavigator.pop(); // 앱 종료
+            },
+            child: Text('예'),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
 }
