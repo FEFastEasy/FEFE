@@ -5,6 +5,7 @@ import '../manage/employeeadd.dart';
 import '../manage/sales.dart';
 import '../manage/store.dart';
 import '../manage/menu.dart';
+import '../manage/commute.dart';
 
 class Manage extends StatelessWidget {
   const Manage({Key? key}) : super(key: key);
@@ -72,7 +73,7 @@ class Manage extends StatelessWidget {
               SizedBox(height: 20),
               _buildItem(context, '직원등록', Employeeadd()),
               SizedBox(height: 20),
-              _buildItem(context, '출퇴근 등록', Store()),
+              _buildItem(context, '출퇴근 등록', Commute()),
             ],
           ),
         ),
