@@ -135,53 +135,9 @@ class _SalesState extends State<Sales> {
           child: Column(
             children: [
               SizedBox(height: 40),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.monetization_on, size: 16, color: Colors.green,),
-                        Text(' 오늘 매출 :', style: _textStyle),
-                      ],
-                    ),
-                    Text('1,000,000원 (+100,000원)', style: _textStyle),
-                  ],
-                ),
-              ),
-              SizedBox(height: 5),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.monetization_on, size: 16, color: Colors.green,),
-                        Text(' 이번달 매출 :', style: _textStyle),
-                      ],
-                    ),
-                    Text('10,000,000원 (+300,000원)', style: _textStyle),
-                  ],
-                ),
-              ),
-              SizedBox(height: 5),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.monetization_on, size: 16, color: Colors.green,),
-                        Text(' 올해 매출 :', style: _textStyle),
-                      ],
-                    ),
-                    Text('100,000,000원 (+700,000원)', style: _textStyle),
-                  ],
-                ),
-              ),
+              buildSalesRow("오늘 매출", "1,000,000원", "+100,000원", Colors.green),
+              buildSalesRow("이번달 매출", "10,000,000원", "+300,000원", Colors.green),
+              buildSalesRow("올해 매출", "100,000,000원", "+700,000원", Colors.green),
               SizedBox(height: 20),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -303,6 +259,24 @@ class _SalesState extends State<Sales> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildSalesRow(String title, String value, String change, Color iconColor) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.monetization_on, size: 16, color: iconColor),
+              Text(' $title :', style: _textStyle),
+            ],
+          ),
+          Text('$value ($change)', style: _textStyle),
+        ],
       ),
     );
   }
