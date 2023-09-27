@@ -105,7 +105,7 @@ class _LoginState extends State<Login> {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Signup()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Signup()));
                   },
                   style: TextButton.styleFrom(
                     primary: Colors.black,
