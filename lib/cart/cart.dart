@@ -30,7 +30,7 @@ class _CartState extends State<Cart> {
           break;
         case 3:
           _currentIndex = 3; // '메뉴' 클릭 시 _currentIndex를 3으로 설정
-          Navigator.pop(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => Order(message: "message")));
           break;
         case 4:
@@ -49,7 +49,8 @@ class _CartState extends State<Cart> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Order(message: "message")));
           },
           icon: Icon(Icons.keyboard_backspace),
           color: Colors.black,
