@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fefe/order/order.dart';
+import 'package:fefe/info/info.dart';
 import 'package:fefe/login/signup.dart';
+import 'package:fefe/login/password.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -36,7 +39,6 @@ final TextStyle labelTextStyle = TextStyle(
 );
 
 class _LoginState extends State<Login> {
-  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _checkBoxValue = false;
 
@@ -103,15 +105,29 @@ class _LoginState extends State<Login> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Signup()));
-                  },
-                  style: TextButton.styleFrom(
-                    primary: Colors.black,
+                Row(children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Signup()));
+                    },
+                    style: TextButton.styleFrom(
+                      primary: Colors.black,
+                    ),
+                    child: Text("회원가입"),
                   ),
-                  child: Text("회원가입"),
-                ),
+                  Text(" / "),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Password()));
+                    },
+                    style: TextButton.styleFrom(
+                      primary: Colors.black,
+                    ),
+                    child: Text("패스워드 찾기"),
+                  ),
+                ]),
                 Row(
                   children: [
                     Checkbox(
@@ -129,30 +145,7 @@ class _LoginState extends State<Login> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // 아이디 찾기 버튼 동작
-                  },
-                  style: TextButton.styleFrom(
-                    primary: Colors.black,
-                  ),
-                  child: Text("아이디 찾기"),
-                ),
-                Text(" / "),
-                TextButton(
-                  onPressed: () {
-                    // 패스워드 찾기 버튼 동작
-                  },
-                  style: TextButton.styleFrom(
-                    primary: Colors.black,
-                  ),
-                  child: Text("패스워드 찾기"),
-                ),
-              ],
-            ),
+            SizedBox(height: 16.0),
             // 다양한 소셜 로그인 버튼
             _buildElevatedButton(
               text: '카카오 로그인',
@@ -205,26 +198,17 @@ class _LoginState extends State<Login> {
   Widget _buildMobile(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text(label, style: labelTextStyle),
           ),
           Container(
             alignment: Alignment.bottomCenter,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: DropdownButton<Map<String, String>>(
               value: _selectedCountry,
               onChanged: (value) {
@@ -233,26 +217,23 @@ class _LoginState extends State<Login> {
                 });
               },
               items: countries.map<DropdownMenuItem<Map<String, String>>>(
-                      (Map<String, String> country) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: country,
-                      child: Row(
-                        children: [
-                          Text(country['flag'] ?? ''),
-                          SizedBox(width: 6),
-                          Text(country['code'] ?? ''),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                  (Map<String, String> country) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: country,
+                  child: Row(
+                    children: [
+                      Text(country['flag'] ?? ''),
+                      SizedBox(width: 6),
+                      Text(country['code'] ?? ''),
+                    ],
+                  ),
+                );
+              }).toList(),
               hint: Text('국가번호'),
             ),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 4 / 10,
+            width: MediaQuery.of(context).size.width * 4 / 10,
             child: TextField(
               controller: _mobileController,
               decoration: InputDecoration(
@@ -270,18 +251,12 @@ class _LoginState extends State<Login> {
   Widget _buildPasswordField(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text(label, style: labelTextStyle),
           ),
           Container(
@@ -299,31 +274,53 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void _loginButtonPressed() {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
+  void _loginButtonPressed() async {
+// 서버에 로그인 요청을 보내기 위한 API 엔드포인트 URL
+    var url = Uri.parse('http://192.168.219.100:8000/user-service/users/login');
 
-    // Perform login validation here
-    if (username == 'user' && password == 'user') {
-      // Login successful
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Order(message: DateTime.now().toString()),
-        ),
-      );
-    } else {
-      // Login failed
-      _showErrorDialog();
+    // 로그인 요청 데이터
+    var data = {
+      'mobileCountryCode': _selectedCountry?['code'], // 국가 코드
+      'mobileNumber': _mobileController.text, // 휴대폰 번호
+      'password': _passwordController.text, // 비밀번호
+    };
+
+    try {
+      // 서버로 POST 요청을 보냅니다.
+      var response = await http.post(url, body: data);
+
+      // 서버로부터의 응답을 확인합니다.
+      if (response.statusCode == 200) {
+        // 로그인 성공
+        var jsonResponse = json.decode(response.body);
+
+        // jsonResponse에서 필요한 정보를 추출하여 사용자 정보를 얻을 수 있습니다.
+        String userId = jsonResponse['userId'];
+        String token = jsonResponse['token'];
+
+        // 로그인 성공 시 처리
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Info(),
+          ),
+        );
+      } else {
+        // 로그인 실패
+        _showErrorDialog("로그인 실패", "올바르지 않은 사용자 이름 또는 비밀번호");
+      }
+    } catch (e) {
+      // 예외 처리 (네트워크 오류 등)
+      _showErrorDialog("오류", "서버에 연결할 수 없습니다.");
     }
   }
 
-  void _showErrorDialog() {
+  void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Error'),
-        content: Text('Invalid username or password.'),
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () {
