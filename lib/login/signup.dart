@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fefe/login/terms.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Signup extends StatefulWidget {
   const Signup({Key? key}) : super(key: key);
@@ -32,6 +34,9 @@ class TermsDetailPage extends StatelessWidget {
 
 class _SignupState extends State<Signup> {
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordcheckController =
+      TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _mobileAuthController = TextEditingController();
 
@@ -53,20 +58,53 @@ class _SignupState extends State<Signup> {
     });
   }
 
+  // 회원가입 parsing
+  Future<void> registerUser() async {
+    final url = Uri.parse('http://192.168.219.100:8000/user-service/users'); // 서버의 URL을 지정해야 합니다.
+
+    // 회원가입에 필요한 데이터를 맵 형태로 정의, json 자료형
+    final Map<String, dynamic> data = {
+      'username': _usernameController.text, // 사용자 이름
+      'password': _passwordController.text, // 비밀번호
+      'gender': _selectedGender, // 성별
+      'birth': _selectedBirthday, // 생년월일
+      'mobileCountryCode': _selectedCountry?['code'], // 국가 코드
+      'mobileNumber': _mobileController.text, // 휴대폰 번호
+      'provider': "MOBILENUMBER"
+    };
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 201) {
+      // 회원가입이 성공한 경우
+      print('회원가입 성공');
+    } else {
+      // 회원가입이 실패한 경우
+      print('회원가입 실패');
+      print('HTTP 응답 코드: ${response.statusCode}');
+      print('응답 내용: ${response.body}');
+    }
+  }
+
   final TextStyle labelTextStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: Colors.black,
   );
 
+  String? _selectedBirthday;
   int? _selectedYear;
   int? _selectedMonth;
   int? _selectedDay;
 
-  final List<int> years = List.generate(100, (index) =>
-  DateTime
-      .now()
-      .year - index);
+  final List<int> years =
+      List.generate(100, (index) => DateTime.now().year - index);
   final List<int> months = List.generate(12, (index) => index + 1);
   final List<int> days = List.generate(31, (index) => index + 1);
 
@@ -109,10 +147,7 @@ class _SignupState extends State<Signup> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -120,6 +155,10 @@ class _SignupState extends State<Signup> {
               _buildTitle('페페(FEFE) 가입을 환영합니다.', fontSize: 30),
               SizedBox(height: 30),
               _buildFormField('이름', '이름을 입력하세요.'),
+              SizedBox(height: 30),
+              _buildPasswordField('비밀번호', '비밀번호를 입력하세요.'),
+              SizedBox(height: 30),
+              _buildPasswordCheckField('비밀번호확인', '비밀번호를 입력하세요.'),
               SizedBox(height: 20),
               _buildGenderRadio(),
               SizedBox(height: 20),
@@ -152,31 +191,39 @@ class _SignupState extends State<Signup> {
                   ],
                 ),
               ),
-              _buildCheckBox02(context, '만 14세 이상입니다. (필수)', _isAgeChecked, (value) {
-                setState(() {
-                  _isAgeChecked = value ?? false;
-                  _updateAllTermsChecked(); // 상태 업데이트 후 호출
-                });
-              }, ),
+              _buildCheckBox02(
+                context,
+                '만 14세 이상입니다. (필수)',
+                _isAgeChecked,
+                (value) {
+                  setState(() {
+                    _isAgeChecked = value ?? false;
+                    _updateAllTermsChecked(); // 상태 업데이트 후 호출
+                  });
+                },
+              ),
               _buildCheckBox(context, '이용약관 동의 (필수)', _isTermsChecked, (value) {
                 setState(() {
                   _isTermsChecked = value ?? false;
                   _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '이용약관'),
-              _buildCheckBox(context, '개인정보 수집/이용 동의 (필수)', _isPrivacyChecked, (value) {
+              _buildCheckBox(context, '개인정보 수집/이용 동의 (필수)', _isPrivacyChecked,
+                  (value) {
                 setState(() {
                   _isPrivacyChecked = value ?? false;
                   _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '개인정보'),
-              _buildCheckBox(context, '위치기반 서비스 이용 동의 (필수)', _isLocationChecked, (value) {
+              _buildCheckBox(context, '위치기반 서비스 이용 동의 (필수)', _isLocationChecked,
+                  (value) {
                 setState(() {
                   _isLocationChecked = value ?? false;
                   _updateAllTermsChecked(); // 상태 업데이트 후 호출
                 });
               }, '위치기반'),
-              _buildCheckBox(context, '홍보성 정보 수신에 동의 (선택)', _isPromotionChecked, (value) {
+              _buildCheckBox(context, '홍보성 정보 수신에 동의 (선택)', _isPromotionChecked,
+                  (value) {
                 setState(() {
                   _isPromotionChecked = value ?? false;
                   _updateAllTermsChecked(); // 상태 업데이트 후 호출
@@ -185,10 +232,7 @@ class _SignupState extends State<Signup> {
               Padding(
                 padding: const EdgeInsets.all(1.0),
                 child: Container(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
+                  width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
                   decoration: BoxDecoration(
                     color: Color(0xffFEE500),
@@ -196,12 +240,12 @@ class _SignupState extends State<Signup> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      if (_isAgeChecked && _isTermsChecked && _isPrivacyChecked && _isLocationChecked) {
-                        // Check if all terms except '홍보성 정보 수신에 동의' are agreed upon
-                          // Perform the signup logic here
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-                      } else {
-                        // Show an alert that all terms must be agreed upon
+                      // 필수 약관 체크 여부 확인
+                      if (!_isAgeChecked ||
+                          !_isTermsChecked ||
+                          !_isPrivacyChecked ||
+                          !_isLocationChecked) {
+                        // 필수 약관 중 하나라도 동의되지 않은 경우 알림 표시
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -218,19 +262,65 @@ class _SignupState extends State<Signup> {
                             );
                           },
                         );
-                      }
+                      } else if (
+                      _usernameController.text.isEmpty || // 이름 입력 여부 확인
+                          _selectedGender == null || // 성별 선택 여부 확인
+                          _selectedYear == null ||
+                          _selectedMonth == null ||
+                          _selectedDay == null || // 생년월일 선택 여부 확인
+                          _mobileController.text.isEmpty || // 휴대폰번호 입력 여부 확인
+                          _mobileAuthController.text
+                              .isEmpty // 휴대폰 인증코드 입력 여부 확인
+                      ) {
+                        // 필수 정보 중 하나라도 입력되지 않은 경우 알림 표시
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: Text('필수 정보를 입력바랍니다.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('확인'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else if (_passwordController.text !=
+                          _passwordcheckController.text) {
+                        // 비밀번호와 비밀번호 확인이 일치하지 않은 경우 알림 표시
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: Text('비밀번호를 다시 확인해주세요.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('확인'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        registerUser();
+                      };
                     },
-
-                    child: Text(
-                        '회원가입',
+                    child: Text('회원가입',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
-                            fontWeight: FontWeight.bold)
-                    ),
+                            fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
+              SizedBox(height: 30)
             ],
           ),
         ),
@@ -258,25 +348,16 @@ class _SignupState extends State<Signup> {
   Widget _buildFormField(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text(label, style: labelTextStyle),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 6 / 10,
+            width: MediaQuery.of(context).size.width * 6 / 10,
             child: TextField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -289,28 +370,78 @@ class _SignupState extends State<Signup> {
     );
   }
 
-  Widget _buildGenderRadio() {
+  Widget _buildPasswordField(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width * 6 / 10,
+            child: TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(
+                labelText: _passwordController.text.isEmpty ? hintText : null,
+              ),
+              obscureText: true,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordCheckField(String label, String hintText) {
+    return Container(
+      height: 40,
+      width: MediaQuery.of(context).size.width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width * 2 / 10,
+            child: Text(label, style: labelTextStyle),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width * 6 / 10,
+            child: TextField(
+              controller: _passwordcheckController,
+              decoration: InputDecoration(
+                labelText:
+                    _passwordcheckController.text.isEmpty ? hintText : null,
+              ),
+              obscureText: true,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenderRadio() {
+    return Container(
+      height: 40,
+      width: MediaQuery.of(context).size.width * 8 / 10,
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text('성별', style: labelTextStyle),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 6 / 10,
+            width: MediaQuery.of(context).size.width * 6 / 10,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -345,25 +476,16 @@ class _SignupState extends State<Signup> {
   Widget _buildDateDropdowns() {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text('생년월일', style: labelTextStyle),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 6 / 10,
+            width: MediaQuery.of(context).size.width * 6 / 10,
             child: Row(
               children: [
                 Expanded(
@@ -372,6 +494,7 @@ class _SignupState extends State<Signup> {
                     onChanged: (value) {
                       setState(() {
                         _selectedYear = value;
+                        _updateBirthday();
                       });
                     },
                     items: years.map<DropdownMenuItem<int>>((int value) {
@@ -390,6 +513,7 @@ class _SignupState extends State<Signup> {
                     onChanged: (value) {
                       setState(() {
                         _selectedMonth = value;
+                        _updateBirthday();
                       });
                     },
                     items: months.map<DropdownMenuItem<int>>((int value) {
@@ -408,6 +532,7 @@ class _SignupState extends State<Signup> {
                     onChanged: (value) {
                       setState(() {
                         _selectedDay = value;
+                        _updateBirthday();
                       });
                     },
                     items: days.map<DropdownMenuItem<int>>((int value) {
@@ -427,29 +552,27 @@ class _SignupState extends State<Signup> {
     );
   }
 
+  void _updateBirthday() {
+    if (_selectedYear != null && _selectedMonth != null && _selectedDay != null) {
+      _selectedBirthday =
+      '$_selectedYear-${_selectedMonth.toString().padLeft(2, '0')}-${_selectedDay.toString().padLeft(2, '0')}';
+    }
+  }
+
   Widget _buildMobile(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text(label, style: labelTextStyle),
           ),
           Container(
             alignment: Alignment.bottomCenter,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: DropdownButton<Map<String, String>>(
               value: _selectedCountry,
               onChanged: (value) {
@@ -458,26 +581,23 @@ class _SignupState extends State<Signup> {
                 });
               },
               items: countries.map<DropdownMenuItem<Map<String, String>>>(
-                      (Map<String, String> country) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: country,
-                      child: Row(
-                        children: [
-                          Text(country['flag'] ?? ''),
-                          SizedBox(width: 6),
-                          Text(country['code'] ?? ''),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                  (Map<String, String> country) {
+                return DropdownMenuItem<Map<String, String>>(
+                  value: country,
+                  child: Row(
+                    children: [
+                      Text(country['flag'] ?? ''),
+                      SizedBox(width: 6),
+                      Text(country['code'] ?? ''),
+                    ],
+                  ),
+                );
+              }).toList(),
               hint: Text('국가번호'),
             ),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 4 / 10,
+            width: MediaQuery.of(context).size.width * 4 / 10,
             child: TextField(
               controller: _mobileController,
               decoration: InputDecoration(
@@ -495,25 +615,16 @@ class _SignupState extends State<Signup> {
   Widget _buildMobileAuth(String label, String hintText) {
     return Container(
       height: 40,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 8 / 10,
+      width: MediaQuery.of(context).size.width * 8 / 10,
       alignment: Alignment.center,
       child: Row(
         children: [
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: Text(label, style: labelTextStyle),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 4 / 10,
+            width: MediaQuery.of(context).size.width * 4 / 10,
             child: TextField(
               controller: _mobileAuthController,
               decoration: InputDecoration(
@@ -524,10 +635,7 @@ class _SignupState extends State<Signup> {
             ),
           ),
           Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 2 / 10,
+            width: MediaQuery.of(context).size.width * 2 / 10,
             child: ElevatedButton(
               onPressed: () {
                 // 인증 코드 전송 동작을 여기에 구현하세요.
@@ -542,11 +650,11 @@ class _SignupState extends State<Signup> {
 }
 
 Widget _buildCheckBox02(
-    BuildContext context,
-    String label,
-    bool value,
-    ValueChanged<bool?> onChanged,
-    ) {
+  BuildContext context,
+  String label,
+  bool value,
+  ValueChanged<bool?> onChanged,
+) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 30),
     child: Row(
@@ -561,14 +669,13 @@ Widget _buildCheckBox02(
   );
 }
 
-
 Widget _buildCheckBox(
-    BuildContext context,
-    String label,
-    bool value,
-    ValueChanged<bool?> onChanged,
-    String term,
-    ) {
+  BuildContext context,
+  String label,
+  bool value,
+  ValueChanged<bool?> onChanged,
+  String term,
+) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 30),
     child: Row(
