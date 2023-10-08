@@ -60,7 +60,8 @@ class _SignupState extends State<Signup> {
 
   // 회원가입 parsing
   Future<void> registerUser() async {
-    final url = Uri.parse('http://192.168.219.100:8000/user-service/users'); // 서버의 URL을 지정해야 합니다.
+    final url = Uri.parse(
+        'http://192.168.219.100:8000/user-service/users'); // 서버의 URL을 지정해야 합니다.
 
     // 회원가입에 필요한 데이터를 맵 형태로 정의, json 자료형
     final Map<String, dynamic> data = {
@@ -104,7 +105,7 @@ class _SignupState extends State<Signup> {
   int? _selectedDay;
 
   final List<int> years =
-      List.generate(100, (index) => DateTime.now().year - index);
+      List.generate(100, (index) => (DateTime.now().year - 14) - index);
   final List<int> months = List.generate(12, (index) => index + 1);
   final List<int> days = List.generate(31, (index) => index + 1);
 
@@ -124,6 +125,23 @@ class _SignupState extends State<Signup> {
   ];
 
   Map<String, String>? _selectedCountry;
+
+  /*
+  // 휴대폰인증 문자전송
+  void _sendSMS(String phoneNumber, String message) async {
+    final SmsSender sender = new SmsSender();
+    final SmsMessage smsMessage = new SmsMessage(phoneNumber, message);
+
+    // SMS를 보내는데 필요한 권한을 확인합니다. 필요한 경우 사용자에게 권한을 요청해야 합니다.
+    bool hasPermission = await sender.requestSmsPermissions();
+    if (hasPermission) {
+      await sender.sendSms(smsMessage);
+      print('SMS가 전송되었습니다.');
+    } else {
+      print('SMS 권한이 거부되었습니다.');
+    }
+  }
+*/
 
   @override
   Widget build(BuildContext context) {
@@ -240,17 +258,22 @@ class _SignupState extends State<Signup> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      // 필수 약관 체크 여부 확인
-                      if (!_isAgeChecked ||
-                          !_isTermsChecked ||
-                          !_isPrivacyChecked ||
-                          !_isLocationChecked) {
-                        // 필수 약관 중 하나라도 동의되지 않은 경우 알림 표시
+                      // 필수 정부 입력 여부 확인
+                      if (_usernameController.text.isEmpty || // 이름 입력 여부 확인
+                              _selectedGender == null || // 성별 선택 여부 확인
+                              _selectedYear == null ||
+                              _selectedMonth == null ||
+                              _selectedDay == null || // 생년월일 선택 여부 확인
+                              _selectedCountry == null ||
+                          _mobileController.text.isEmpty || // 휴대폰번호 입력 여부 확인
+                              _mobileAuthController.text.isEmpty // 휴대폰 인증코드 입력 여부 확인
+                          ) {
+                        // 필수 정보 중 하나라도 입력되지 않은 경우 알림 표시
                         showDialog(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              content: Text('필수 약관에 동의해야 회원가입이 가능합니다.'),
+                              content: Text('필수 정보를 입력바랍니다.'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -262,22 +285,16 @@ class _SignupState extends State<Signup> {
                             );
                           },
                         );
-                      } else if (
-                      _usernameController.text.isEmpty || // 이름 입력 여부 확인
-                          _selectedGender == null || // 성별 선택 여부 확인
-                          _selectedYear == null ||
-                          _selectedMonth == null ||
-                          _selectedDay == null || // 생년월일 선택 여부 확인
-                          _mobileController.text.isEmpty || // 휴대폰번호 입력 여부 확인
-                          _mobileAuthController.text
-                              .isEmpty // 휴대폰 인증코드 입력 여부 확인
-                      ) {
-                        // 필수 정보 중 하나라도 입력되지 않은 경우 알림 표시
+                      } else if (!_isAgeChecked ||
+                          !_isTermsChecked ||
+                          !_isPrivacyChecked ||
+                          !_isLocationChecked) {
+                        // 필수 약관 중 하나라도 동의되지 않은 경우 알림 표시
                         showDialog(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              content: Text('필수 정보를 입력바랍니다.'),
+                              content: Text('필수 약관에 동의해야 회원가입이 가능합니다.'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -310,7 +327,8 @@ class _SignupState extends State<Signup> {
                         );
                       } else {
                         registerUser();
-                      };
+                      }
+                      ;
                     },
                     child: Text('회원가입',
                         style: TextStyle(
@@ -390,7 +408,9 @@ class _SignupState extends State<Signup> {
               ),
               obscureText: true,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
+                LengthLimitingTextInputFormatter(8), // 최소 8자리로 제한
+                FilteringTextInputFormatter.allow(
+                    RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
               ],
             ),
           ),
@@ -420,7 +440,8 @@ class _SignupState extends State<Signup> {
               ),
               obscureText: true,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
+                FilteringTextInputFormatter.allow(
+                    RegExp(r'[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]')),
               ],
             ),
           ),
@@ -553,9 +574,11 @@ class _SignupState extends State<Signup> {
   }
 
   void _updateBirthday() {
-    if (_selectedYear != null && _selectedMonth != null && _selectedDay != null) {
+    if (_selectedYear != null &&
+        _selectedMonth != null &&
+        _selectedDay != null) {
       _selectedBirthday =
-      '$_selectedYear-${_selectedMonth.toString().padLeft(2, '0')}-${_selectedDay.toString().padLeft(2, '0')}';
+          '$_selectedYear-${_selectedMonth.toString().padLeft(2, '0')}-${_selectedDay.toString().padLeft(2, '0')}';
     }
   }
 
@@ -637,8 +660,100 @@ class _SignupState extends State<Signup> {
           Container(
             width: MediaQuery.of(context).size.width * 2 / 10,
             child: ElevatedButton(
-              onPressed: () {
-                // 인증 코드 전송 동작을 여기에 구현하세요.
+              onPressed: () async {
+                if (_selectedCountry == null || _mobileController.text.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text('국가번호를 선택바랍니다.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('확인'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  return;
+                }
+
+                // 서버에 전송할 데이터를 JSON 형식으로 만듭니다.
+                final Map<String, dynamic> requestData = {
+                  'mobileCountryCode': _selectedCountry?['code'], // 국가 코드
+                  'mobileNumber': _mobileController.text,
+                };
+
+                // 서버의 확인 엔드포인트 URL을 지정합니다.
+                final url = Uri.parse('http://192.168.219.100:8000/user-service/users'); // 실제 엔드포인트 URL로 변경하세요.
+
+                try {
+                  final response = await http.post(
+                    url,
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: jsonEncode(requestData),
+                  );
+
+                  if (response.statusCode == 200) {
+                    // 서버 응답이 성공적인 경우
+                    // 서버에서 반환한 데이터를 확인하여 처리합니다.
+                    // 예를 들어, 가입 여부를 확인하고 적절한 동작을 수행합니다.
+                    final responseData = jsonDecode(response.body);
+                    bool isRegistered = responseData['isRegistered'];
+
+                    if (isRegistered) {
+                      // 이미 가입된 경우 처리
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Text('이미 가입된 휴대폰 번호입니다.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('확인'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      // 가입되지 않은 경우 처리
+                      // 인증 코드를 보내는 등의 동작을 수행할 수 있습니다.
+                      // 휴대폰 번호가 확인되면 인증 코드를 보내고
+                      // 다음 단계로 진행하는 등의 로직을 추가하세요.
+                      // 예시: _sendVerificationCode(fullPhoneNumber);
+                    }
+                  } else {
+                    // 서버 응답이 실패한 경우
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text('서버에서 오류가 발생했습니다.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('확인'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                } catch (e) {
+                  // 네트워크 요청 중 오류가 발생한 경우 처리
+                  print('네트워크 요청 중 오류 발생: $e');
+                }
               },
               child: Text('코드전송'),
             ),
@@ -656,15 +771,18 @@ Widget _buildCheckBox02(
   ValueChanged<bool?> onChanged,
 ) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 30),
-    child: Row(
-      children: [
-        Checkbox(
-          value: value,
-          onChanged: onChanged,
-        ),
-        Text(label),
-      ],
+    padding: const EdgeInsets.symmetric(horizontal: 0),
+    child: Container(
+      width: MediaQuery.of(context).size.width * 8 / 10,
+      child: Row(
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: onChanged,
+          ),
+          Text(label),
+        ],
+      ),
     ),
   );
 }
@@ -677,32 +795,35 @@ Widget _buildCheckBox(
   String term,
 ) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 30),
-    child: Row(
-      children: [
-        Checkbox(
-          value: value,
-          onChanged: onChanged,
-        ),
-        Text(label),
-        if (TermsContent.getTermsContent(term).isNotEmpty)
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TermsDetailPage(term: term),
+    padding: const EdgeInsets.symmetric(horizontal: 0),
+    child: Container(
+      width: MediaQuery.of(context).size.width * 8 / 10,
+      child: Row(
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: onChanged,
+          ),
+          Text(label),
+          if (TermsContent.getTermsContent(term).isNotEmpty)
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TermsDetailPage(term: term),
+                  ),
+                );
+              },
+              child: Text(
+                '보기',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
                 ),
-              );
-            },
-            child: Text(
-              '보기',
-              style: TextStyle(
-                decoration: TextDecoration.underline,
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     ),
   );
 }
