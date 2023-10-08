@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Infoedit extends StatefulWidget {
   const Infoedit({Key? key}) : super(key: key);
@@ -35,6 +37,35 @@ class _InfoeditState extends State<Infoedit> {
         _image = pickedImage;
       });
     }
+  }
+
+// 회원 정보를 가져와 입력 칸에 설정하는 함수
+  Future<void> fetchMemberInfo() async {
+    final url = Uri.parse('https://example.com/api/get_member_info'); // 실제 API 엔드포인트를 사용하세요.
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> memberInfo = json.decode(response.body);
+      setState(() {
+        _nicknameController.text = memberInfo['nickname'] ?? '';
+        _usernameController.text = memberInfo['username'] ?? '';
+        _mobileController.text = memberInfo['mobileNumber'] ?? '';
+        // 다른 필드도 필요에 따라 설정
+      });
+    } else {
+      // 실패한 경우 예외 처리
+      throw Exception('Failed to load member info');
+    }
+  }
+
+  // initState에서 회원 정보 가져오기
+  @override
+  void initState() {
+    super.initState();
+    fetchMemberInfo().catchError((error) {
+      // 오류 처리
+      print('Error fetching member info: $error');
+    });
   }
 
   final TextStyle labelTextStyle = TextStyle(
